@@ -1,0 +1,139 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+buildscript {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath 'com.gradleup.shadow:shadow-gradle-plugin:9.4.1'
+    }
+}
+
+plugins {
+    id 'fabric-loom' version '1.14-SNAPSHOT'
+    id 'maven-publish'
+}
+
+apply plugin: 'com.gradleup.shadow'
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+configurations {
+    // Isolated configuration bucket specifically for Shadow.
+    // Notice we do NOT extend compileClasspath or runtimeClasspath from this anymore!
+    shadowBundle
+}
+
+loom {
+    splitEnvironmentSourceSets()
+
+    mods {
+        "${project.archives_base_name}" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+}
+
+// Cleaned up: Removed the 'extendsFrom configurations.shadowMe' block that broke the client environment
+
+fabricApi {
+    configureDataGeneration {
+        client = true
+    }
+}
+dependencies {
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    modImplementation("net.johnseagull:figmanager-1-21-11:${project.fig_version}:dev") {
+        exclude group: "net.fabricmc"
+        exclude group: "org.spongepowered"
+    }
+
+    shadowBundle "net.johnseagull:figmanager-1-21-11:${project.fig_version}"
+}
+
+tasks.named('shadowJar', ShadowJar) {
+    // Pull configurations strictly from our isolated production bucket
+    configurations = [project.configurations.shadowBundle]
+    archiveClassifier = 'dev-s'
+    from sourceSets.main.output
+    from sourceSets.client.output
+
+    relocate 'net.johnseagull.figManager', "net.johnseagull.${project.archives_base_name}.libs.figManager"
+    relocate 'net.johnseagull.figManagerClient', "net.johnseagull.${project.archives_base_name}.libs.figManagerClient"
+    relocate 'net.johnseagull.figManagerMC', "net.johnseagull.${project.archives_base_name}.libs.figManagerMC"
+
+    dependencies {
+        include(dependency('net.johnseagull:figmanager-1-21-11'))
+    }
+}
+
+// FIX: Only hook shadowJar into remapJar when building artifacts,
+// leaving the IDE runtime environment perfectly clean.
+tasks.named('remapJar') {
+    if (gradle.startParameter.taskNames.any { it.contains("build") || it.contains("assemble") || it.contains("publish") }) {
+        dependsOn tasks.shadowJar
+        inputFile = tasks.shadowJar.archiveFile
+    }
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "minecraft_version", project.minecraft_version
+    inputs.property "loader_version", project.loader_version
+    filteringCharset "UTF-8"
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version,
+                "minecraft_version": project.minecraft_version,
+                "loader_version": project.loader_version
+    }
+}
+
+def targetJavaVersion = 21
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        it.options.release.set(targetJavaVersion)
+    }
+}
+
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+    withSourcesJar()
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${project.archives_base_name}" }
+    }
+}
+
+publishing {
+    publications {
+        create("mavenJava", MavenPublication) {
+            artifactId = project.archives_base_name
+            from components.java
+        }
+    }
+    repositories {
+    }
+}

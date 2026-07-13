@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "combat-log",
+  "version": "${version}",
+  "name": "combat-log",
+  "description": "1.21.11 port of Rawlands by mr_kartoshki",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/combat-log/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "net.johnseagull.combatLog.CombatLog"
+    ]
+  },
+  "mixins": [
+    "combat-log.mixins.json",
+    {
+      "config": "combat-log.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
