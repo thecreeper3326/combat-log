@@ -3,23 +3,22 @@
   "id": "combat-log",
   "version": "${version}",
   "name": "combat-log",
-  "description": "1.21.11 port of Rawlands by mr_kartoshki",
+  "description": "Lets server admins set various punishments for players who leave during combat",
   "authors": [],
   "contact": {},
-  "license": "All-Rights-Reserved",
-  "icon": "assets/combat-log/icon.png",
-  "environment": "server",
+  "license": "MIT",
+  "icon": "icon.png",
+  "environment": "*",
   "entrypoints": {
     "main": [
       "net.johnseagull.combatLog.CombatLog"
+    ],
+    "client": [
+      "net.johnseagull.combatLog.client.CombatLogClient"
     ]
   },
   "mixins": [
-    "combat-log.mixins.json",
-    {
-      "config": "combat-log.client.mixins.json",
-      "environment": "client"
-    }
+    "combat-log.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",

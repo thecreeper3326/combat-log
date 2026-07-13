@@ -1,4 +1,4 @@
-package net.johnseagull.inventoryManager.accessor;
+package net.johnseagull.combatLog.accessor;
 
 public interface LivingEntityAccessor {
         int getCombatTime();
