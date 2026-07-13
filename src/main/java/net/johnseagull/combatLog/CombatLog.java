@@ -14,7 +14,7 @@ public class CombatLog implements ModInitializer {
     @Override
     public void onInitialize() {
         FigManagerMC fm = new FigManagerMC();
-        fm.init("combat_log","1.0",Figs.instance);
+        fm.init("combat_log","1.1",Figs.instance);
 
         Figs fg = (Figs) FigManagerMC.FIGS;
         if (fg.fire.value && fg.logonHealth.value<5) {
@@ -56,6 +56,9 @@ public class CombatLog implements ModInitializer {
                     }
                     if (f.drainSaturation.value) {
                         player.getFoodData().setSaturation(0f);
+                    }
+                    if (f.blindnessEffect.value) {
+                        player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, f.effectDuration.value, 5));
                     }
                     if (f.noGravity.value) {
                         if (Math.random() < f.gravityChance.value)
