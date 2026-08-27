@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "net.johnseagull.combatLog.mixin",
+  "package": "johnseagull.combatLog.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "LivingEntityMixin"

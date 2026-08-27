@@ -11,10 +11,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.johnseagull.combatLog.CombatLog"
+      "johnseagull.combatLog.CombatLog"
     ],
     "client": [
-      "net.johnseagull.combatLog.client.CombatLogClient"
+      "johnseagull.combatLog.client.CombatLogClient"
     ]
   },
   "mixins": [

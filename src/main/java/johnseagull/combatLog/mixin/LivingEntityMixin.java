@@ -1,11 +1,10 @@
-package net.johnseagull.combatLog.mixin;
+package johnseagull.combatLog.mixin;
 
-import net.johnseagull.combatLog.Figs;
-import net.johnseagull.combatLog.accessor.LivingEntityAccessor;
-import net.johnseagull.figManagerMC.FigManagerMC;
+import johnseagull.combatLog.Figs;
+import johnseagull.combatLog.accessor.LivingEntityAccessor;
+import johnseagull.figManagerMC.FigManagerMC;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;

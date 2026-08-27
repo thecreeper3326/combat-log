@@ -1,8 +1,8 @@
-package net.johnseagull.combatLog;
+package johnseagull.combatLog;
 
-import net.johnseagull.figManager.Fig.*;
-import net.johnseagull.figManager.FigGroup;
-import net.johnseagull.figManagerMC.DividerFig;
+import johnseagull.figManager.Fig.*;
+import johnseagull.figManager.FigGroup;
+import johnseagull.figManagerMC.DividerFig;
 import net.minecraft.ChatFormatting;
 
 import java.util.List;
@@ -35,5 +35,7 @@ public class Figs {
     public FloatFig nauseaChance = new FloatFig("Chance","Chance (0.0 - 1.0) for the player to receive nausea",0.5f,0.0f,1.0f);
     public BooleanFig fire = new BooleanFig("Fire","Set the player ablaze without warning",false);
     public FloatFig fireChance = new FloatFig("Chance","Chance (0.0 - 1.0) for the player to be set on fire",0.5f,0.0f,1.0f);
+    public BooleanFig big = new BooleanFig("Easy target","Set the player's scale upon rejoining.",false);
+    public FloatFig bigScale = new FloatFig("Scale","Float 0.1 to 1000; multiplier for the player's scale",5,0.1f,1000f);
     public MapFig $_badPlayers = new MapFig("bad_players","environment value - do no change",64,2,"int","playerName","flag");
 }

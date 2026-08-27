@@ -1,8 +1,8 @@
-package net.johnseagull.combatLog.client;
+package johnseagull.combatLog.client;
 
-import net.johnseagull.combatLog.Figs;
+import johnseagull.combatLog.Figs;
 import net.fabricmc.api.ClientModInitializer;
-import net.johnseagull.figManagerClient.FigManagerClient;
+import johnseagull.figManagerClient.FigManagerClient;
 
 public class CombatLogClient implements ClientModInitializer {
 
