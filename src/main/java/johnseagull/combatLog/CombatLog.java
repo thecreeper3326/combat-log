@@ -86,7 +86,7 @@ public class CombatLog implements ModInitializer {
                         player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, f.effectDuration.value, 5));
                     }
                     if (f.noGravity.value) {
-                        if (Math.random() < f.gravityChance.value) player.getAttribute(Attributes.GRAVITY).setBaseValue(-5);
+                        if (Math.random() < f.gravityChance.value) player.getAttribute(Attributes.GRAVITY).setBaseValue(-2);
                     }
                     if (f.nausea.value) {
                         if (Math.random() < f.nauseaChance.value)
