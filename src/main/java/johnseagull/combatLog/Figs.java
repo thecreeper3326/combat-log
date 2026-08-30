@@ -15,7 +15,15 @@ public class Figs {
     public BooleanFig enable = new BooleanFig("Enable mod","enables the fucntions of this mod", true);
     public IntFig cooldown = new IntFig("Cooldown","How long a user must wait before they can log off and not receive punishment",200,0,Integer.MAX_VALUE);
     public BooleanFig stationaryCooldown = new BooleanFig("Stationary Cooldown","Only progresses the cooldown when the player is not moving. This can help prevent player from just running and then logging off.",false);
+    public DividerFig msgnote = new DividerFig("Note for warning message:","%S / %T will be replaced with the number of seconds / ticks left in cooldown.",ChatFormatting.GRAY,false,true,false);
+    public StringFig message = new StringFig("Warning Message","Message to be displayed while the user is in combat.","You're in combat and cannot log out safely for the next %S seconds!",100);
+    public StringFig leaveMessage = new StringFig("Leave Message", "Message to display to all players when a player logs out during combat. %N will be replaced with the player's name","%N has combat logged! Awaiting their return...",64);
+    public StringFig returnMessage = new StringFig("Return Message","Message to display to the user when they log back in after combat logging.","You were warned!",100);
+    public StringFig humiliation = new StringFig("Public Message","Message to show all players when a bad player logs back on. %N will be replaced with the player's name.","%N has returned and is being punished.",64);
+
     public DividerFig punishments = new DividerFig("Punishments", ChatFormatting.WHITE,false,false,false);
+
+
     public FigGroup effects = new FigGroup(List.of("modifyHealth","logonHealth","modifyHunger","logonHunger","drainSaturation","poisonEffect","hungerEffect","slownessEffect","blindnessEffect","effectDuration"),2,true,0.5f);
     public BooleanFig modifyHealth = new BooleanFig("Modify health","Set the player's health to a certain amount after re-joining",true);
     public IntFig logonHealth = new IntFig("Health","How much health the player should have on re-join after combat-logging",5,0,20);
@@ -37,5 +45,5 @@ public class Figs {
     public FloatFig fireChance = new FloatFig("Chance","Chance (0.0 - 1.0) for the player to be set on fire",0.5f,0.0f,1.0f);
     public BooleanFig big = new BooleanFig("Easy target","Set the player's scale upon rejoining.",false);
     public FloatFig bigScale = new FloatFig("Scale","Float 0.1 to 1000; multiplier for the player's scale",5,0.1f,1000f);
-    public MapFig $_badPlayers = new MapFig("bad_players","environment value - do no change",64,2,"int","playerName","flag");
+    public MapFig $_badPlayers = new MapFig("bad_players","environment value ",64,2,"int","playerName","flag");
 }

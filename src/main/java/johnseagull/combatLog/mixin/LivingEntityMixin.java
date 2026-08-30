@@ -46,8 +46,7 @@ public abstract class LivingEntityMixin implements LivingEntityAccessor {
     }
     @Inject(method="tick",at=@At("TAIL"))
     public void tick(CallbackInfo ci) {
-        e++;
-        if (e > 20) {
+
             if ((LivingEntity)(Object)this instanceof ServerPlayer) {
                 Figs f = (Figs) FigManagerMC.FIGS;
                 ServerPlayer player = (ServerPlayer)(Object)this;
@@ -62,8 +61,7 @@ public abstract class LivingEntityMixin implements LivingEntityAccessor {
                 }
                 this.l = currentPos;
             }
-            e=0;
-        }
+
 
     }
 

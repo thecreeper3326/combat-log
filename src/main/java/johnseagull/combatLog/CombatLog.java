@@ -5,12 +5,14 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import johnseagull.combatLog.accessor.LivingEntityAccessor;
 import johnseagull.figManagerMC.FigManagerMC;
+import net.minecraft.core.Holder;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.*;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.entity.player.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,10 +24,29 @@ import java.util.UUID;
 public class CombatLog implements ModInitializer {
     Logger logger = LoggerFactory.getLogger("No combat log");
     private static HashMap<UUID, Integer> size = new HashMap<>();
+    private static HashMap<UUID, Integer> gravity = new HashMap<>();
+
+    private void cd(MinecraftServer server, HashMap<UUID, Integer> m, Holder<Attribute> a, double b) {
+        Iterator<Map.Entry<UUID, Integer>> it_g = m.entrySet().iterator();
+        while (it_g.hasNext()) {
+            Map.Entry<UUID, Integer> entry = it_g.next();
+            int r = entry.getValue() - 1;
+            if (r <= 0) {
+                ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
+                if (player != null) {
+                    AttributeInstance s = player.getAttribute(a);
+                    if (s != null) s.setBaseValue(b);
+                }
+                it_g.remove();
+            } else {
+                entry.setValue(r);
+            }
+        }
+    }
     @Override
     public void onInitialize() {
         FigManagerMC fm = new FigManagerMC();
-        fm.init("combat_log","1.2.1",Figs.instance);
+        fm.init("combat_log","1.2.2",Figs.instance);
 
         Figs fg = (Figs) FigManagerMC.FIGS;
         if (fg.fire.value && fg.logonHealth.value<5) {
@@ -36,34 +57,45 @@ public class CombatLog implements ModInitializer {
             Figs f = (Figs) FigManagerMC.FIGS;
             if (f.enable.value) {
                 if (((LivingEntityAccessor) player).getCombatTime() < f.cooldown.value) {
+                    for (ServerPlayer p : player.level().getServer().getPlayerList().getPlayers()) {
+                            String msg = f.leaveMessage.value.replace("%N", player.getPlainTextName());
+                            p.sendSystemMessage(Component.literal(msg), false);
+                    }
                     //someone did something bad...
-                    f.$_badPlayers.value.put(player.getPlainTextName(), "1");
+                    f.$_badPlayers.value.put(player.getPlainTextName()+"_"+player.getUUID(), String.valueOf(((LivingEntityAccessor) player).getCombatTime()));
                 } else {
-                    f.$_badPlayers.value.remove(player.getPlainTextName());
+                    f.$_badPlayers.value.remove(player.getPlainTextName()+"_"+player.getUUID());
                 }
                 FigManagerMC.save("combat_log");
             }
         });
         ServerTickEvents.END_SERVER_TICK.register(server -> {
+            cd(server, size, Attributes.SCALE,1);
+            cd(server, gravity, Attributes.GRAVITY,0.08d);
+            Figs f = (Figs) FigManagerMC.FIGS;
 
-            Iterator<Map.Entry<UUID, Integer>> iterator = size.entrySet().iterator();
-
-            while (iterator.hasNext()) {
-                Map.Entry<UUID,Integer> entry = iterator.next();
-                UUID s = entry.getKey();
-                int i = entry.getValue();
-
-                if (i <= 1) {
-                    ServerPlayer player = server.getPlayerList().getPlayer(s);
-                    player.getAttribute(Attributes.SCALE).setBaseValue(1);
+            for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+                int time  = ((LivingEntityAccessor) player).getCombatTime();
+                if (time < f.cooldown.value) {
+                    String msg = f.message.value.replace("%T", String.valueOf(f.cooldown.value - time)).replace("%S", String.valueOf((Math.round((float) (f.cooldown.value - time) / 20))));
+                    player.sendSystemMessage(Component.literal(msg), true);
                 }
             }
         });
+
         ServerPlayerEvents.JOIN.register(player -> {
+
             Figs f = (Figs) FigManagerMC.FIGS;
+            player.getAttribute(Attributes.GRAVITY).setBaseValue(0.08F);
+            player.getAttribute(Attributes.SCALE).setBaseValue(1);
             if (f.enable.value) {
                 ((LivingEntityAccessor) player).setCombatTime(f.cooldown.value);
-                if (f.$_badPlayers.value.containsKey(player.getPlainTextName())) {
+                if (f.$_badPlayers.value.containsKey(player.getPlainTextName()+"_"+player.getUUID())) {
+                    for (ServerPlayer p : player.level().getServer().getPlayerList().getPlayers()) {
+                        String msg = f.humiliation.value.replace("%N", player.getPlainTextName());
+                        p.sendSystemMessage(Component.literal(msg), false);
+                    }
+                    player.sendSystemMessage(Component.literal(f.returnMessage.value), false);
                     if (f.modifyHealth.value) {
                         player.setHealth(f.logonHealth.value);
                     }
@@ -87,6 +119,7 @@ public class CombatLog implements ModInitializer {
                     }
                     if (f.noGravity.value) {
                         if (Math.random() < f.gravityChance.value) player.getAttribute(Attributes.GRAVITY).setBaseValue(-2);
+                        gravity.put(player.getUUID(),f.effectDuration.value);
                     }
                     if (f.nausea.value) {
                         if (Math.random() < f.nauseaChance.value)
@@ -101,8 +134,10 @@ public class CombatLog implements ModInitializer {
                         size.put(player.getUUID(),f.effectDuration.value);
                     }
 
+                    f.$_badPlayers.value.remove(player.getPlainTextName()+"_"+player.getUUID());
                 }
             }
         });
     }
+
 }
